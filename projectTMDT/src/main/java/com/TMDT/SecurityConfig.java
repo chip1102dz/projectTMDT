@@ -18,24 +18,26 @@ public class SecurityConfig {
 
 	@Autowired
 	private CustomUserDetailService customUserDetailService;
-	
+
 	@Bean
 	BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests((auth) -> auth.requestMatchers("/*").permitAll().requestMatchers("/admin/**")
 						.hasAnyAuthority("ADMIN").anyRequest().authenticated())
 				.formLogin(login -> login.loginPage("/logon").loginProcessingUrl("/logon").usernameParameter("username")
-						.passwordParameter("password").defaultSuccessUrl("/admin", true));
+						.passwordParameter("password").defaultSuccessUrl("/admin", true))
+				.logout(logout -> logout.logoutUrl("/admin-logout").logoutSuccessUrl("/logon"))
+				.logout(logout -> logout.logoutUrl("/admin-logout").logoutSuccessUrl("/logon"));
 		return http.build();
 	}
-	
+
 	@Bean
 	WebSecurityCustomizer webSecurityCustomizer() {
-		return (web)->web.ignoring().requestMatchers("/static/**","/fe/**", "assets/**");
+		return (web) -> web.ignoring().requestMatchers("/static/**", "/fe/**", "assets/**");
 	}
 }
